@@ -10,6 +10,10 @@ interface StatsData {
 }
 
 export function StatisticsCards({ stats }: { stats: StatsData }) {
+  const formatPrice = (price: number) => {
+    return isNaN(price) ? '-' : `$${price.toFixed(2)}`;
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <div className="bg-white rounded-lg shadow p-4">
@@ -17,7 +21,7 @@ export function StatisticsCards({ stats }: { stats: StatsData }) {
           <DollarSign className="h-8 w-8 text-blue-500" />
           <div className="ml-4">
             <p className="text-sm text-gray-500">平均価格</p>
-            <p className="text-xl font-bold">${stats.averagePrice.toFixed(2)}</p>
+            <p className="text-xl font-bold">{formatPrice(stats.averagePrice)}</p>
           </div>
         </div>
       </div>
@@ -35,7 +39,7 @@ export function StatisticsCards({ stats }: { stats: StatsData }) {
           <TrendingUp className="h-8 w-8 text-purple-500" />
           <div className="ml-4">
             <p className="text-sm text-gray-500">最高価格</p>
-            <p className="text-xl font-bold">${stats.highestPrice.toFixed(2)}</p>
+            <p className="text-xl font-bold">{formatPrice(stats.highestPrice)}</p>
           </div>
         </div>
       </div>
@@ -44,7 +48,7 @@ export function StatisticsCards({ stats }: { stats: StatsData }) {
           <Globe className="h-8 w-8 text-red-500" />
           <div className="ml-4">
             <p className="text-sm text-gray-500">最低価格</p>
-            <p className="text-xl font-bold">${stats.lowestPrice.toFixed(2)}</p>
+            <p className="text-xl font-bold">{formatPrice(stats.lowestPrice)}</p>
           </div>
         </div>
       </div>

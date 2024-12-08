@@ -1,52 +1,85 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, ArrowUpDown, ArrowDown, ArrowUp } from 'lucide-react';
-import { DataTable } from './DataTable';
-import { SearchBar } from './SearchBar';
+import { Search } from 'lucide-react';
+import { EbayDataTable } from './EbayDataTable';
+import { parseCSVData } from '@/utils/csvParser';
 
 export function EbayDataViewer() {
+  const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState<{ key: string | null, direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
-  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // CSVファイルを読み込む
     const loadData = async () => {
       try {
         const response = await fetch('/data/ebay_data.csv');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const text = await response.text();
-        const rows = text.split('\n').map(row => row.split(','));
-        const headers = rows[0];
-        const parsedData = rows.slice(1).map(row => {
-          const item: { [key: string]: string } = {};
-          headers.forEach((header, index) => {
-            item[header] = row[index];
-          });
-          return item;
-        });
+        const parsedData = parseCSVData(text);
         setData(parsedData);
+        setError(null);
       } catch (error) {
         console.error('データの読み込みに失敗しました:', error);
+        setError('データの読み込み中にエラーが発生しました。');
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadData();
   }, []);
 
+  // 検索フィルター
+  const filteredData = data.filter(item =>
+    Object.values(item).some(value =>
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      <div className="bg-white rounded-lg shadow-lg">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-800">eBay販売データビューア</h1>
-          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+    <div className="container mx-auto p-6">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">eBay販売データビューア</h1>
+        
+        {/* 検索バー */}
+        <div className="relative max-w-md mb-6">
+          <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="検索..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
-        <DataTable 
-          data={data} 
-          searchTerm={searchTerm} 
-          sortConfig={sortConfig}
-          setSortConfig={setSortConfig}
-        />
+
+        {/* データ概要 */}
+        <div className="mb-4 text-sm text-gray-600">
+          <span>総アイテム数: {filteredData.length}</span>
+          {searchTerm && (
+            <span className="ml-4">検索結果: {filteredData.length} 件</span>
+          )}
+        </div>
+
+        {/* エラー表示 */}
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+
+        {/* ローディング表示 */}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <EbayDataTable data={filteredData} />
+        )}
       </div>
     </div>
   );
