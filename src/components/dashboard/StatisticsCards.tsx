@@ -1,57 +1,48 @@
 'use client';
 
-import { DollarSign, TrendingUp, Globe, Package } from 'lucide-react';
+import React from 'react';
 
-interface StatsData {
-  averagePrice: number;
-  totalItems: number;
-  highestPrice: number;
-  lowestPrice: number;
+interface StatisticsCardsProps {
+  stats: {
+    totalItems: number;
+    averagePrice: number;
+    totalValue: number;
+    uniqueSellers: number;
+  };
 }
 
-export function StatisticsCards({ stats }: { stats: StatsData }) {
-  const formatPrice = (price: number) => {
-    return isNaN(price) ? '-' : `$${price.toFixed(2)}`;
-  };
-
+export const StatisticsCards: React.FC<StatisticsCardsProps> = ({ stats }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex items-center">
-          <DollarSign className="h-8 w-8 text-blue-500" />
-          <div className="ml-4">
-            <p className="text-sm text-gray-500">平均価格</p>
-            <p className="text-xl font-bold">{formatPrice(stats.averagePrice)}</p>
-          </div>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-gray-500 text-sm font-medium">総商品数</h3>
+        <p className="mt-2 text-3xl font-bold text-gray-900">
+          {stats.totalItems.toLocaleString()}
+        </p>
       </div>
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex items-center">
-          <Package className="h-8 w-8 text-green-500" />
-          <div className="ml-4">
-            <p className="text-sm text-gray-500">総アイテム数</p>
-            <p className="text-xl font-bold">{stats.totalItems}</p>
-          </div>
-        </div>
+
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-gray-500 text-sm font-medium">平均価格</h3>
+        <p className="mt-2 text-3xl font-bold text-gray-900">
+          ${stats.averagePrice.toFixed(2)}
+        </p>
       </div>
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex items-center">
-          <TrendingUp className="h-8 w-8 text-purple-500" />
-          <div className="ml-4">
-            <p className="text-sm text-gray-500">最高価格</p>
-            <p className="text-xl font-bold">{formatPrice(stats.highestPrice)}</p>
-          </div>
-        </div>
+
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-gray-500 text-sm font-medium">総取引額</h3>
+        <p className="mt-2 text-3xl font-bold text-gray-900">
+          ${stats.totalValue.toLocaleString()}
+        </p>
       </div>
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex items-center">
-          <Globe className="h-8 w-8 text-red-500" />
-          <div className="ml-4">
-            <p className="text-sm text-gray-500">最低価格</p>
-            <p className="text-xl font-bold">{formatPrice(stats.lowestPrice)}</p>
-          </div>
-        </div>
+
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-gray-500 text-sm font-medium">ユニーク出品者数</h3>
+        <p className="mt-2 text-3xl font-bold text-gray-900">
+          {stats.uniqueSellers.toLocaleString()}
+        </p>
       </div>
     </div>
   );
-}
+};
+
+export default StatisticsCards;
